@@ -1,20 +1,39 @@
 import Database.TinkerPop
+import Test.Hspec
 import Data.Aeson.QQ
+import Control.Concurrent
+import Control.Monad.Trans (liftIO)
+import Control.Concurrent.MVar
 
 main :: IO ()
-main = do
-    run "localhost" 8182 $ \conn -> do
-        res <- send conn sampleJSON
-        putStrLn $ show res
+main = hspec $ do
+  describe "submit" $ do
+      it "sync return result" $ do
+          run "localhost" 8182 $ \conn -> do
+              Right res <- submit conn "g.V().values('name')"
+              putStrLn $ show res
+              length res `shouldBe` 6
+      it "with multi thread" $ do
+          run "localhost" 8182 $ \conn -> do
+              var <- newEmptyMVar
+              flip forkFinally (putMVar var) $ do
+                  res <- submit conn "g.V().values('age')"
+                  liftIO $ putStrLn $ show res
+                  return res 
+              Right res <- submit conn "g.V().has('name','marko').out('created').in('created').values('name')"
+              putStrLn $ show res
+              length res `shouldBe` 3              
+              Right (Right threadRes) <- takeMVar var
+              length threadRes `shouldBe` 4
 
-sampleJSON = [aesonQQ|
-{ "requestId":"1d6d02bd-8e56-421d-9438-3bd6d0079ff1",
-  "op":"eval",
-  "processor":"",
-  "args":{"gremlin":"g.V().has('name','marko').out('created').in('created').values('name')",
-  "bindings":{"x":1},
-  "language":"gremlin-groovy",
-  "batchSize": 2
-}}
-|]
-
+-- main = do
+--     run "localhost" 8182 $ \conn -> do
+--         var <- newEmptyMVar
+--         flip forkFinally (putMVar var) $ do
+--             Right res <- submit conn "g.V().values('age')"
+--             liftIO $ putStrLn $ show res
+--             return res 
+--         Right res <- submit conn "g.V().has('name','marko').out('created').in('created').values('name')"
+--         putStrLn $ show res
+--         threadRes <- takeMVar var
+--         putStrLn $ show threadRes
