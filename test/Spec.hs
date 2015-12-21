@@ -25,6 +25,10 @@ main = hspec $ do
               length res `shouldBe` 3              
               Right (Right threadRes) <- takeMVar var
               length threadRes `shouldBe` 4
+      it "sync return error" $ do
+          run "localhost" 8182 $ \conn -> do
+              Left msg <- submit conn "throw new RuntimeException('MyError')"
+              msg `shouldBe` "MyError"
 
 -- main = do
 --     run "localhost" 8182 $ \conn -> do
@@ -36,4 +40,4 @@ main = hspec $ do
 --         Right res <- submit conn "g.V().has('name','marko').out('created').in('created').values('name')"
 --         putStrLn $ show res
 --         threadRes <- takeMVar var
---         putStrLn $ show threadRes
+--         putStrLn $ show threadRes 

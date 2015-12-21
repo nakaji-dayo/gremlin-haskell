@@ -4,7 +4,7 @@ import Database.TinkerPop.Types
 import Prelude hiding (putStrLn)
 import qualified Network.WebSockets as WS
 import qualified Data.Map.Strict as M
-import Data.Text (Text, pack, append)
+import Data.Text (Text, pack, unpack, append)
 import qualified Data.Text as T
 import Data.Text.IO
 import Data.Text.Encoding
@@ -30,7 +30,7 @@ makeFields ''ResponseStatus
 $(deriveJSON defaultOptions {fieldLabelModifier = lowerFirst.(drop 15)} ''ResponseStatus)
 
 data ResponseResult = ResponseResult {
-    _responseResultData' :: [Value]
+    _responseResultData' :: Maybe [Value]
     , _responseResultMeta :: Object
 } deriving (Show)
 makeFields ''ResponseResult
@@ -103,9 +103,13 @@ submit conn gremlin = do
     recv chan xs = do
         eres <- S.atomically $ S.readTChan chan
         case eres of
-         Right r -> do
-             let xs' = xs ++ (r ^. result ^. data')
-             if (r ^. status ^. code) == 206 then recv chan xs' else return $ Right xs'
+         Right r
+             | elem statusCode [200, 206] -> do                   
+                   let Just d = (r ^. result ^. data')
+                       xs' = xs ++ d
+                   if statusCode == 206 then recv chan xs' else return $ Right xs'
+             | otherwise -> return $ Left (unpack $ r ^. status ^. message)
+           where statusCode = (r ^. status ^. code)
          Left x -> return $ Left x
 
 buildRequest gremlin = do
