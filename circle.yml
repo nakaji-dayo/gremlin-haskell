@@ -1,11 +1,18 @@
+machine:
+  java:
+    version: oraclejdk8
+    
 dependencies:
   pre:
     - wget -q -O- https://s3.amazonaws.com/download.fpcomplete.com/ubuntu/fpco.key | sudo apt-key add - # add fpcomplate key
     - echo 'deb http://download.fpcomplete.com/ubuntu/precise stable main'|sudo tee /etc/apt/sources.list.d/fpco.list
     -  sudo apt-get update && sudo apt-get install stack -y # install stack
+    # install & run gremlin server for test
+    - ./etc/run-gremlin-server.sh
   cache_directories:
     - ~/.stack
     - ~/gremlin-haskell/.stack-work
+    - ~/gremlin-server
   override:
     - stack setup
     - stack build
@@ -14,3 +21,12 @@ dependencies:
 test:
   override:
     - stack test
+
+deployment:
+  master:
+    branch: master
+    commands:
+      - ./etc/setup-stack-credentials.sh
+      - stack sdist
+      - stack upload .
+      
