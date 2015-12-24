@@ -5,16 +5,10 @@ import Database.TinkerPop.Internal
 
 import Prelude hiding (putStrLn)
 import qualified Network.WebSockets as WS
+
 import qualified Data.Map.Strict as M
-import Data.Text (Text, pack, unpack, append)
--- import qualified Data.Text as T
-import Data.Text.IO
-import Data.Text.Encoding
-import Data.Aeson (encode, eitherDecodeStrict, Value)
-import Data.Aeson.QQ
-import Control.Concurrent
-import Control.Monad (forever)
--- import Control.Monad.Trans (liftIO)
+import Data.Text (unpack)
+import Data.Aeson (encode, Value)
 import qualified Control.Monad.STM as S
 import qualified Control.Concurrent.STM.TChan as S
 import qualified Control.Concurrent.STM.TVar as S
@@ -22,6 +16,7 @@ import qualified Data.UUID as U
 import qualified Data.UUID.V4 as U
 import Control.Lens
 
+-- | Connect to Gremlin Server
 run :: String -> Int -> (Connection -> IO ()) -> IO ()
 run host port app = do    
     WS.runClient host port "/" $ \ws -> do
@@ -31,24 +26,9 @@ run host port app = do
         app conn
         close conn
 
-handle :: Connection -> IO (ThreadId)
-handle conn = do
-    forkIO $ forever $ do
-        msg <- WS.receiveData (conn ^. socket) :: IO Text
-        putStrLn $ "recv: " `append` msg
-        case eitherDecodeStrict (encodeUtf8 msg) of
-         Right r -> do
-             cs <- S.readTVarIO (conn ^. chans)
-             case M.lookup (r ^. requestId) cs of
-              Just chan -> S.atomically $ S.writeTChan chan (Right r)
-              Nothing -> putStrLn $ "ERROR: chan not found"
-         Left s -> putStrLn $ "ERROR: parse response message: " `append` (pack s)
-
-close :: Connection -> IO ()
-close conn = do
---    putStrLn "will close"
-    WS.sendClose (conn ^. socket) ("Bye!" :: Text)
-
+-- | Send script toGremlin Server and get the result by List
+--
+-- Individual responses are combined in internal.
 submit :: Connection -> Gremlin -> Maybe Binding -> IO (Either String [Value])
 submit conn body binding = do
     req <- buildRequest body binding
@@ -70,6 +50,7 @@ submit conn body binding = do
            where statusCode = (r ^. status ^. code)
          Left x -> return $ Left x
 
+-- | Build request data
 buildRequest :: Gremlin -> Maybe Binding -> IO RequestMessage
 buildRequest body binding = do
     uuid <- U.toText <$> U.nextRandom

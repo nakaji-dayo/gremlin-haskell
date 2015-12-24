@@ -8,8 +8,9 @@
 --
 
 module Database.TinkerPop.Types where
-import Database.TinkerPop.Internal
-import Data.Text hiding (drop)
+
+import Data.Text hiding (drop, toLower)
+import Data.Char (toLower)
 import qualified Data.Map.Strict as M
 import Data.Aeson (Object, Value)
 import Data.Aeson.TH
@@ -36,7 +37,7 @@ data RequestArgs = RequestArgs {
     , _requestArgsBatchSize :: Int
       -- ^ When the result is an iterator this value defines the number of iterations each ResponseMessage should contain
 }
-$(deriveJSON defaultOptions{fieldLabelModifier = lowerFirst.(drop 12)} ''RequestArgs)
+$(deriveJSON defaultOptions{fieldLabelModifier = (\(x:xs) -> (toLower x):xs).(drop 12)} ''RequestArgs)
 makeFields ''RequestArgs
 
 -- | Format of requests to the Gremlin Server
@@ -50,7 +51,7 @@ data RequestMessage = RequestMessage {
    , _requestMessageArgs :: RequestArgs
      -- ^ Parameters to pass to Gremlin Server
 }
-$(deriveJSON defaultOptions{fieldLabelModifier = lowerFirst.(drop 15)} ''RequestMessage)
+$(deriveJSON defaultOptions{fieldLabelModifier = (\(x:xs) -> (toLower x):xs).(drop 15)} ''RequestMessage)
 makeFields ''RequestMessage
 
 -- | The staus of Gremlin Server Response
@@ -63,7 +64,7 @@ data ResponseStatus = ResponseStatus {
       -- ^ Protocol-level information
 } deriving (Show)
 makeFields ''ResponseStatus
-$(deriveJSON defaultOptions {fieldLabelModifier = lowerFirst.(drop 15)} ''ResponseStatus)
+$(deriveJSON defaultOptions {fieldLabelModifier = (\(x:xs) -> (toLower x):xs).(drop 15)} ''ResponseStatus)
 
 -- | The Result of Gremlin Server response
 data ResponseResult = ResponseResult {
@@ -73,7 +74,7 @@ data ResponseResult = ResponseResult {
       -- ^ Map of meta-data related to the response.
 } deriving (Show)
 makeFields ''ResponseResult
-$(deriveJSON defaultOptions  {fieldLabelModifier = \x -> if x == "_responseResultData'" then "data" else lowerFirst (drop 15 x)} ''ResponseResult)
+$(deriveJSON defaultOptions  {fieldLabelModifier = \f -> if f == "_responseResultData'" then "data" else (\(x:xs) -> (toLower x):xs) (drop 15 f)} ''ResponseResult)
 
 -- | Response of Gremlin Server
 data ResponseMessage = ResponseMessage {
@@ -84,7 +85,7 @@ data ResponseMessage = ResponseMessage {
     , _responseMessageResult :: ResponseResult
       -- ^ result
 } deriving (Show)
-$(deriveJSON defaultOptions{fieldLabelModifier = lowerFirst.(drop 16)} ''ResponseMessage)
+$(deriveJSON defaultOptions{fieldLabelModifier = (\(x:xs) -> (toLower x):xs).(drop 16)} ''ResponseMessage)
 makeFields ''ResponseMessage
 
 -- | Connection handle

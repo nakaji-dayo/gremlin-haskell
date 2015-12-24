@@ -15,6 +15,7 @@ stack test
 ```
 
 ## TODO:
-- Handle errors
 - Use as streaming data source
-- fix ```gremlin-haskell-test: threadWait: invalid argument (Bad file descriptor)```
+- Resolve thread problem ```gremlin-haskell-test: threadWait: invalid argument (Bad file descriptor)```
+- Rewrite test
+- create Gnerating Gremlin script DSL(?)
