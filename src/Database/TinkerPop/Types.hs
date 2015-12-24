@@ -34,7 +34,7 @@ data RequestArgs = RequestArgs {
       -- ^ A map of key/value pairs to apply as variables in the context of the Gremlin script
     , _requestArgsLanguage :: Text
       -- ^ The flavor used (e.g. gremlin-groovy)
-    , _requestArgsBatchSize :: Int
+    , _requestArgsBatchSize :: Maybe Int
       -- ^ When the result is an iterator this value defines the number of iterations each ResponseMessage should contain
 }
 $(deriveJSON defaultOptions{fieldLabelModifier = (\(x:xs) -> (toLower x):xs).(drop 12)} ''RequestArgs)

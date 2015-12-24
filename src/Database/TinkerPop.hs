@@ -55,4 +55,4 @@ buildRequest :: Gremlin -> Maybe Binding -> IO RequestMessage
 buildRequest body binding = do
     uuid <- U.toText <$> U.nextRandom
     return $ RequestMessage uuid "eval" "" $
-        RequestArgs body binding "gremlin-groovy" 2
+        RequestArgs body binding "gremlin-groovy" Nothing
