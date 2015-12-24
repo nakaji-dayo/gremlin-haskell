@@ -1,6 +1,8 @@
 # gremlin-haskell
 Haskell graph database client for TinkerPop3 Gremlin Server
 
+https://hackage.haskell.org/package/gremlin-haskell
+
 ## test
 ### to run the test with gremlin-server
 
