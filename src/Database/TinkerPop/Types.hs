@@ -19,11 +19,17 @@ import qualified Network.WebSockets as WS
 import qualified Control.Concurrent.STM.TChan as S
 import qualified Control.Concurrent.STM.TVar as S
 
+-- | Represent Gremlin code
+type Gremlin = Text
+
+-- | A Map of key/value pairs
+type Binding = Object
+
 -- | parameters to pass to Gremlin Server. (TODO: The requirements for the contents of this Map are dependent on the op selected.)
 data RequestArgs = RequestArgs {
     _requestArgsGremlin :: Text
     -- ^ The Gremlin script to evaluate    
-    , _requestArgsBindings :: Value
+    , _requestArgsBindings :: Maybe Binding
       -- ^ A map of key/value pairs to apply as variables in the context of the Gremlin script
     , _requestArgsLanguage :: Text
       -- ^ The flavor used (e.g. gremlin-groovy)
@@ -88,5 +94,3 @@ data Connection = Connection {
 }
 makeFields ''Connection
 
--- | Represent Gremlin code
-type Gremlin = Text

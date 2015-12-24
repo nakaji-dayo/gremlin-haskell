@@ -45,6 +45,11 @@ executable gremlin-haskell-examples
   default-extensions:  OverloadedStrings
   build-depends:       base
                      , gremlin-haskell
+                     , text
+                     , aeson
+                     , lens
+                     , lens-aeson
+                     , unordered-containers 
                      , mtl
   default-language:    Haskell2010
 
@@ -55,6 +60,8 @@ test-suite gremlin-haskell-test
   default-extensions:  OverloadedStrings
   build-depends:       base
                      , gremlin-haskell
+                     , lens
+                     , lens-aeson
                      , aeson-qq
                      , mtl
                      , hspec

@@ -49,9 +49,9 @@ close conn = do
 --    putStrLn "will close"
     WS.sendClose (conn ^. socket) ("Bye!" :: Text)
 
-submit :: Connection -> Gremlin -> IO (Either String [Value])
-submit conn body = do
-    req <- buildRequest body
+submit :: Connection -> Gremlin -> Maybe Binding -> IO (Either String [Value])
+submit conn body binding = do
+    req <- buildRequest body binding
     chan <- S.newTChanIO
     S.atomically $ S.modifyTVar (conn ^. chans) $ M.insert (req ^. requestId) chan
     WS.sendTextData (conn ^. socket) (encode req)
@@ -70,8 +70,8 @@ submit conn body = do
            where statusCode = (r ^. status ^. code)
          Left x -> return $ Left x
 
-buildRequest :: Gremlin -> IO  RequestMessage
-buildRequest body = do
+buildRequest :: Gremlin -> Maybe Binding -> IO RequestMessage
+buildRequest body binding = do
     uuid <- U.toText <$> U.nextRandom
     return $ RequestMessage uuid "eval" "" $
-        RequestArgs body [aesonQQ| {"x": 1}|] "gremlin-groovy" 2
+        RequestArgs body binding "gremlin-groovy" 2
