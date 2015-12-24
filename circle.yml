@@ -13,4 +13,4 @@ dependencies:
     
 test:
   override:
-    - stack test webrack:test
+    - stack test
