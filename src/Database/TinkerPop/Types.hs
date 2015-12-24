@@ -6,7 +6,6 @@
 -- Stability   : experimental
 -- Portability : non-portable
 --
-
 module Database.TinkerPop.Types where
 
 import Data.Text hiding (drop, toLower)

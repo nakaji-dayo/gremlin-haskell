@@ -2,7 +2,7 @@ name:                gremlin-haskell
 version:             0.1.0.0
 synopsis:            Graph database client for TinkerPop3 Gremlin Server
 description:         Please see README.md
-homepage:            http://github.com/nakaji-dayo/gremlin-haskell#readme
+homepage:            http://github.com/nakaji-dayo/gremlin-haskell
 license:             BSD3
 license-file:        LICENSE
 author:              Daishi Nakajima

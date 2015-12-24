@@ -1,3 +1,11 @@
+-- |
+-- Module: Database.TinkerPop
+-- Copyright: (c) 2015 The gremlin-haskell Authors
+-- License     : BSD3
+-- Maintainer  : nakaji.dayo@gmail.com
+-- Stability   : experimental
+-- Portability : non-portable
+--
 module Database.TinkerPop where
 
 import Database.TinkerPop.Types
