@@ -1,6 +1,8 @@
 module Database.TinkerPop where
 
 import Database.TinkerPop.Types
+import Database.TinkerPop.Internal
+
 import Prelude hiding (putStrLn)
 import qualified Network.WebSockets as WS
 import qualified Data.Map.Strict as M
@@ -33,7 +35,7 @@ handle :: Connection -> IO (ThreadId)
 handle conn = do
     forkIO $ forever $ do
         msg <- WS.receiveData (conn ^. socket) :: IO Text
---        putStrLn $ "recv: " `append` msg
+        putStrLn $ "recv: " `append` msg
         case eitherDecodeStrict (encodeUtf8 msg) of
          Right r -> do
              cs <- S.readTVarIO (conn ^. chans)
@@ -59,9 +61,10 @@ submit conn body = do
         eres <- S.atomically $ S.readTChan chan
         case eres of
          Right r
-             | elem statusCode [200, 206] -> do                   
-                   let Just d = (r ^. result ^. data')
-                       xs' = xs ++ d
+             | inStatus2xx statusCode -> do                   
+                   let xs' = case (r ^. result ^. data') of
+                           Just d -> xs ++ d
+                           Nothing -> xs
                    if statusCode == 206 then recv chan xs' else return $ Right xs'
              | otherwise -> return $ Left (unpack $ r ^. status ^. message)
            where statusCode = (r ^. status ^. code)

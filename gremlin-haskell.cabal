@@ -16,6 +16,7 @@ library
   hs-source-dirs:      src
   exposed-modules:     Database.TinkerPop
                        Database.TinkerPop.Types
+                       Database.TinkerPop.Internal
   ghc-options:   -Wall -fwarn-tabs -O0
   default-extensions:  OverloadedStrings
                        QuasiQuotes
@@ -36,14 +37,16 @@ library
                      , stm
                      , uuid
   default-language:    Haskell2010
-
--- executable gremlin-haskell-exe
---   hs-source-dirs:      app
---   main-is:             Main.hs
---   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
---   build-depends:       base
---                      , gremlin-haskell
---   default-language:    Haskell2010
+ 
+executable gremlin-haskell-examples
+  hs-source-dirs:      examples
+  main-is:             Main.hs
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  default-extensions:  OverloadedStrings
+  build-depends:       base
+                     , gremlin-haskell
+                     , mtl
+  default-language:    Haskell2010
 
 test-suite gremlin-haskell-test
   type:                exitcode-stdio-1.0
