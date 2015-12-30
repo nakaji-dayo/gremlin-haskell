@@ -1,5 +1,5 @@
 name:                gremlin-haskell
-version:             0.1.0.1
+version:             0.1.0.2
 synopsis:            Graph database client for TinkerPop3 Gremlin Server
 description:         Please see README.md
 homepage:            http://github.com/nakaji-dayo/gremlin-haskell
