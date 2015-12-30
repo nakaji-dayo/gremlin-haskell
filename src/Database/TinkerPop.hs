@@ -11,8 +11,9 @@ module Database.TinkerPop where
 import Database.TinkerPop.Types
 import Database.TinkerPop.Internal
 
-import Prelude hiding (putStrLn)
+import Prelude
 import qualified Network.WebSockets as WS
+import Control.Exception
 
 import qualified Data.Map.Strict as M
 import Data.Text (unpack)
@@ -20,19 +21,22 @@ import Data.Aeson (encode, Value)
 import qualified Control.Monad.STM as S
 import qualified Control.Concurrent.STM.TChan as S
 import qualified Control.Concurrent.STM.TVar as S
+import qualified Control.Concurrent.MVar as MV
 import qualified Data.UUID as U
 import qualified Data.UUID.V4 as U
 import Control.Lens
 
 -- | Connect to Gremlin Server
 run :: String -> Int -> (Connection -> IO ()) -> IO ()
-run host port app = do    
-    WS.runClient host port "/" $ \ws -> do
+run host port app = do
+    handle (wsExceptionHandler "main thread") $ WS.runClient host port "/" $ \ws -> do
+        done <- MV.newEmptyMVar
         cs <- S.newTVarIO M.empty
         let conn = Connection ws cs
-        _ <- handle conn
+        _ <- handler conn done
         app conn
         close conn
+        MV.takeMVar done
 
 -- | Send script toGremlin Server and get the result by List
 --
