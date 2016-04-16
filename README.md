@@ -1,4 +1,4 @@
-# gremlin-haskell
+# gremlin-haskell [![Hackage](https://img.shields.io/hackage/v/gremlin-haskell.svg?maxAge=2592000)](https://hackage.haskell.org/package/gremlin-haskell)
 Haskell graph database client for TinkerPop3 Gremlin Server
 
 https://hackage.haskell.org/package/gremlin-haskell
