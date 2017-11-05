@@ -9,7 +9,6 @@ module Database.TinkerPop.Internal.GraphSON
        ( GraphSON(..)
        ) where
 
-import Control.Monad (guard)
 import Data.Aeson (ToJSON(..), FromJSON(..), object, (.=), Value(..), (.:?))
 import Data.Aeson.Types (Parser)
 import Data.Text (Text)
@@ -32,10 +31,12 @@ instance ToJSON a => ToJSON (GraphSON a) where
 
 instance FromJSON a => FromJSON (GraphSON a) where
   parseJSON v@(Object o) = do
-    guard (length o == 2)
-    mtype <- o .:? "@type"
-    mvalue <- o .:? "@value"
-    maybe (parseDirect v) return $ typedGraphSON <$> mtype <*> mvalue
+    if length o /= 2
+      then parseDirect v
+      else do
+      mtype <- o .:? "@type"
+      mvalue <- o .:? "@value"
+      maybe (parseDirect v) return $ typedGraphSON <$> mtype <*> mvalue
   parseJSON v = parseDirect v
     
 typedGraphSON :: Text -> a -> GraphSON a
