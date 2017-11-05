@@ -29,7 +29,7 @@ import Control.Lens
 -- | Connect to Gremlin Server
 run :: String -> Int -> (Connection -> IO ()) -> IO ()
 run host port app = do
-    handle (wsExceptionHandler "main thread") $ WS.runClient host port "/" $ \ws -> do
+    handle (wsExceptionHandler "main thread") $ WS.runClient host port "/gremlin" $ \ws -> do
         done <- MV.newEmptyMVar
         cs <- S.newTVarIO M.empty
         let conn = Connection ws cs

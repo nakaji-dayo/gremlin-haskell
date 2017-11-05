@@ -11,13 +11,16 @@ module Database.TinkerPop.Types where
 import Data.Text hiding (drop, toLower)
 import Data.Char (toLower)
 import qualified Data.Map.Strict as M
-import Data.Aeson (Object, Value)
+import Data.Aeson (Object, Value(..), FromJSON(..), (.:))
 import Data.Aeson.TH
 import Control.Lens
+import Control.Monad (mzero)
 
 import qualified Network.WebSockets as WS
 import qualified Control.Concurrent.STM.TChan as S
 import qualified Control.Concurrent.STM.TVar as S
+
+import Database.TinkerPop.Internal.GraphSON (GraphSON(..))
 
 -- | Represent Gremlin code
 type Gremlin = Text
@@ -73,7 +76,14 @@ data ResponseResult = ResponseResult {
       -- ^ Map of meta-data related to the response.
 } deriving (Show)
 makeFields ''ResponseResult
-$(deriveJSON defaultOptions  {fieldLabelModifier = \f -> if f == "_responseResultData'" then "data" else (\(x:xs) -> (toLower x):xs) (drop 15 f)} ''ResponseResult)
+$(deriveToJSON defaultOptions  {fieldLabelModifier = \f -> if f == "_responseResultData'" then "data" else (\(x:xs) -> (toLower x):xs) (drop 15 f)} ''ResponseResult)
+
+instance FromJSON ResponseResult where
+  parseJSON (Object o) = do
+    mgvalue <- o .: "data"
+    ResponseResult (_atValue <$> mgvalue) <$> (o .: "meta")
+  parseJSON _ = mzero
+
 
 -- | Response of Gremlin Server
 data ResponseMessage = ResponseMessage {

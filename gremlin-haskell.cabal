@@ -17,6 +17,7 @@ library
   exposed-modules:     Database.TinkerPop
                        Database.TinkerPop.Types
                        Database.TinkerPop.Internal
+  other-modules:       Database.TinkerPop.Internal.GraphSON
   ghc-options:   -Wall -fwarn-tabs
   default-extensions:  OverloadedStrings
                        QuasiQuotes

@@ -37,12 +37,14 @@ handler conn done = do
 
 -- | Handle exception from websocket.
 --
--- Ignore ConnectionClised exception that expected.
+-- Ignore ConnectionClosed and CloseRequest (status 1000) exceptions
+-- that expected.
 wsExceptionHandler :: Text -> SomeException -> IO ()
 wsExceptionHandler label e = do
     -- putStrLn $ "handle exception[" `append` label `append` "]: " `append` (pack $ show e)
     case fromException e of
      Just WS.ConnectionClosed -> return ()
+     Just (WS.CloseRequest 1000 _) -> return ()
      _ -> do
          putStrLn $ "unexpect exception[" `append` label `append` "]: " `append` (pack $ show e)
          throw e
